@@ -1,12 +1,12 @@
 ### Быстрый старт
 
-####1. Клонирование репозитория
+#### 1. Клонирование репозитория
 ```
 git clone https://github.com/azaliias/tender-service.git
 cd tender-service
 ```
 
-####2. Настройка окружения
+#### 2. Настройка окружения
 2.1 Создайте файл `.env` на основе файла-примера `.env.example`
 2.2 Отредактируйте настройки БД в .env:
 ```
@@ -18,22 +18,22 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-####3. Установка зависимостей
+#### 3. Установка зависимостей
 ```
 docker-compose run --rm app composer install
 ```
 
-####4. Запуск через Docker
+#### 4. Запуск через Docker
 ```
 docker-compose up -d --build
 ```
 
-####4. Установка миграций
+#### 5. Установка миграций
 ```
 docker-compose exec app php artisan migrate --seed
 ```
 
-####5. Импорт данных из файла test_task_data.csv
+#### 6. Импорт данных из файла test_task_data.csv
 ```
 docker cp test_task_data.csv tender-service-app-1:/var/www/html/storage/app/test_task_data.csv
 docker-compose exec app php artisan import:tenders
@@ -43,7 +43,7 @@ docker-compose exec app php artisan import:tenders
 #####Базовый URL: `http://localhost:8000/api`
 
 ### Начало работы
-####1. Получение токена
+#### 1. Получение токена
 
 **POST** `http://localhost:8000/api/auth/login`
 
@@ -60,7 +60,7 @@ Response:
     "token": "1|Vo0FB7XZx0JpDfIJBK2Ns1E43y4IM7T3u5b6I8oHbeb7159d"
 }
 ```
-####2. Создание тендера
+#### 2. Создание тендера
 
 **POST** `http://localhost:8000/api/tenders`
 
@@ -92,7 +92,7 @@ Response:
 }
 ```
 
-###3. Получение тендера с участием идентификатора
+### 3. Получение тендера с участием идентификатора
 
 В качестве идентификатора задан внешний код (external_code)
 **GET** `http://localhost:8000/api/tenders/{external_code}`
@@ -117,7 +117,7 @@ Response:
 }
 ```
 
-####4. Получение списка тендеров
+#### 4. Получение списка тендеров
 
 **GET** `http://localhost:8000/api/tenders`
 
@@ -151,7 +151,7 @@ Response:
 }
 ```
 
-####5. Получение списка тендеров с фильтрацией по названию или дате с использованием query параметров name и date
+#### 5. Получение списка тендеров с фильтрацией по названию или дате с использованием query параметров name и date
 
 **GET** `http://localhost:8000/api/tenders?name={name}&date={date}&page={page}`
 
