@@ -1,0 +1,36 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/var/www/html
+        environment:
+            - DB_HOST=db
+            - DB_PORT=3306
+            - DB_DATABASE=tender_service
+            - DB_USERNAME=root
+            - DB_PASSWORD=
+        depends_on:
+            db:
+                condition: service_healthy
+
+    db:
+        image: mysql:8.0
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+            - MYSQL_DATABASE=tender_service
+        volumes:
+            - mysql_data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-uroot", "-h", "localhost"]
+            interval: 5s
+            timeout: 10s
+            retries: 5
+
+volumes:
+    mysql_data:
