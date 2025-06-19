@@ -1,66 +1,189 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+### Быстрый старт
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+####1. Клонирование репозитория
+```
+git clone https://github.com/azaliias/tender-service.git
+cd tender-service
+```
 
-## About Laravel
+####2. Настройка окружения
+2.1 Создайте файл `.env` на основе файла-примера `.env.example`
+2.2 Отредактируйте настройки БД в .env:
+```
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=tender_service
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+####3. Установка зависимостей
+```
+docker-compose run --rm app composer install
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+####4. Запуск через Docker
+```
+docker-compose up -d --build
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+####4. Установка миграций
+```
+docker-compose exec app php artisan migrate --seed
+```
 
-## Learning Laravel
+####5. Импорт данных из файла test_task_data.csv
+```
+docker cp test_task_data.csv tender-service-app-1:/var/www/html/storage/app/test_task_data.csv
+docker-compose exec app php artisan import:tenders
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Доступ к API
+#####Базовый URL: `http://localhost:8000/api`
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Начало работы
+####1. Получение токена
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**POST** `http://localhost:8000/api/auth/login`
 
-## Laravel Sponsors
+Body:
+```json
+{
+    "email": "admin@admin.ru",
+    "password": "password"
+}
+```
+Response:
+```json
+{
+    "token": "1|Vo0FB7XZx0JpDfIJBK2Ns1E43y4IM7T3u5b6I8oHbeb7159d"
+}
+```
+####2. Создание тендера
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+**POST** `http://localhost:8000/api/tenders`
 
-### Premium Partners
+Headers:
+`Authorization: Bearer YOUR_TOKEN` - **YOUR_TOKEN** из ответа `auth/login`
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+Body:
+```json
+{
+    "external_code": "1111111111",
+    "number": "2025-06-01",
+    "status": "Открыто",
+    "name": "Тестовая заявка"
+}
+```
+Response:
+```json
+{
+    "message": "Tender created successfully",
+    "data": {
+        "external_code": "1111111111",
+        "number": "2025-06-01",
+        "status": "Открыто",
+        "name": "Тестовая заявка",
+        "updated_at": "18.06.2025 12:00:39",
+        "created_at": "18.06.2025 12:00:39",
+        "id": 5431
+    }
+}
+```
 
-## Contributing
+###3. Получение тендера с участием идентификатора
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+В качестве идентификатора задан внешний код (external_code)
+**GET** `http://localhost:8000/api/tenders/{external_code}`
 
-## Code of Conduct
+Headers:
+`Authorization: Bearer YOUR_TOKEN` - **YOUR_TOKEN** из ответа `auth/login`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Пример:
+```text
+GET http://localhost:8000/api/tenders/152467080
+```
+Response:
+```json
+{
+    "id": 19,
+    "external_code": "152467080",
+    "number": "17540-2",
+    "status": "Закрыто",
+    "name": "Запрос скидок Поставка флагов для ОАО Компания Череповец",
+    "created_at": "14.08.2022 19:25:13",
+    "updated_at": "14.08.2022 19:25:13"
+}
+```
 
-## Security Vulnerabilities
+####4. Получение списка тендеров
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**GET** `http://localhost:8000/api/tenders`
 
-## License
+Headers:
+`Authorization: Bearer YOUR_TOKEN` - **YOUR_TOKEN** из ответа `auth/login`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Response:
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "external_code": "152467180",
+            "number": "17660-2",
+            "status": "Закрыто",
+            "name": "Лабороаторная посуда",
+            "created_at": "14.08.2022 19:25:14",
+            "updated_at": "14.08.2022 19:25:14"
+        },
+        ...
+    ],
+    "pagination": {
+        "total": 5430,
+        "per_page": 10,
+        "current_page": 1,
+        "last_page": 543,
+        "from": 1,
+        "to": 10
+    }
+}
+```
+
+####5. Получение списка тендеров с фильтрацией по названию или дате с использованием query параметров name и date
+
+**GET** `http://localhost:8000/api/tenders?name={name}&date={date}&page={page}`
+
+Headers:
+`Authorization: Bearer YOUR_TOKEN` - **YOUR_TOKEN** из ответа `auth/login`
+
+Пример:
+`http://localhost:8000/api/tenders?name=Поставка&date=2022-08-14&page=3`
+
+Response:
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "id": 55,
+            "external_code": "152466840",
+            "number": "17516-2",
+            "status": "Закрыто",
+            "name": "Поставка металлопроката в адрес БФ ОАО Компания г.Балаково ЗАПРОС СКИДКИ",
+            "created_at": "14.08.2022 19:25:12",
+            "updated_at": "14.08.2022 19:25:12"
+        },
+        ...
+    ],
+    "pagination": {
+        "total": 1469,
+        "per_page": 10,
+        "current_page": 3,
+        "last_page": 147,
+        "from": 21,
+        "to": 30
+    }
+}
+```
