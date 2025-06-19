@@ -95,6 +95,7 @@ Response:
 ### 3. Получение тендера с участием идентификатора
 
 В качестве идентификатора задан внешний код (external_code)
+
 **GET** `http://localhost:8000/api/tenders/{external_code}`
 
 Headers:
